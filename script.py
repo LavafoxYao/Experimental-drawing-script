@@ -14,9 +14,10 @@ dict = {"delivery_prob": 9, "response_prob": 10, "overhead_ratio": 11, "latency_
 ########################
 # 文件目录
 path = r"F:\One program\wywork\the-one-1.6.0\reports"
+#path = r"F:\One平台\reports\921添加相似度不加ACK"
 # 画图的纵坐标与横坐标的名称
 COLNAME = "delivery_prob"
-ROWNAME = "Buff"
+ROWNAME = "Buffsize"
 # 比较指标 ==>比如 deliver_prob
 norm = dict["delivery_prob"]
 ##########################
@@ -29,7 +30,8 @@ def getfilename():
     #allfiles = sorted(allfiles, key=lambda x: os.path.getmtime(os.path.join(path, x)))
     files = []
     for file in allfiles:
-        files.append(file)
+        if file.endswith(r".txt"):
+            files.append(file)
     return files
 
 
@@ -53,8 +55,10 @@ def getdata():
         # 打开文件
         f = open(path + "\\" + file)
         # 正则匹配 截取符合下列规则的字符串
+        # 截取数字之前的字符串
         name = re.search(r'([A-Z]*[a-z]*){3}', file).group()
-        para = re.search(r'\d{1,5}', file).group()
+        # 截取文件名中的浮点数
+        para = re.search(r'[0-9]*\.?[0-9]+', file).group()
         read_buf = []
         # 读取文件中所有的数据
         for r in f:
@@ -62,7 +66,7 @@ def getdata():
         # 如果读取的文件是空的就continue
         if len(read_buf) <= 1:
             continue
-        # 读取list中第九个数据 并且用split分割一次(2部分)并且取第二个元素
+        # 读取list中的数据,并且用split分割一次(2部分)并且取第二个元素
         str = read_buf[norm].split(':', 1)[1]
         # 并将其分割成只含数字字符串的list
         target = (str.replace("\n", "").replace("\r", "").replace(" ", ""))
@@ -70,17 +74,15 @@ def getdata():
         if name not in algomap.keys():
             algomap[name] = {}
         # 这里相当于dict{"":{}}
-        algomap[name][int(para)] = target
+        algomap[name][float(para)] = target
     return algomap
 
 def painting():
     algomap = getdata()
     # 折线的颜色
-    color = ["#F4606C", "#7B68EE", "#40E0D0", "#F4A460", "#BEE7E9", "#BEEDC7", "#D1BA74"]
+    color = ["#F4606C", "#7B68EE", "#40E0D0", "#F4A460", "#B5495B", "#BEEDC7", "#D1BA74","#FB966E", "#FFC408"]
     #折线的形状
-    marker = [r"-o", r"-*", r"-^", r"-.", r"--", r"+",  r"v"]
-    # 获得算法的名称
-    fig = plt.figure()
+    marker = [r"-o", r"-*", r"-^", r"-v", r"-D", r"+",  r"x", r"<", r">"]
     # 图的名称
     plt.figure('DTN experimental data fig')
     ax = plt.gca()
@@ -104,9 +106,6 @@ def painting():
         cnt += 1
     plt.legend()
     plt.show()
-
-
-
 
 
 if __name__ == '__main__':
