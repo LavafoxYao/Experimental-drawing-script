@@ -13,13 +13,13 @@ dict = {"delivery_prob": 9, "response_prob": 10, "overhead_ratio": 11, "latency_
 
 ########################
 # 文件目录
-path = r"F:\One program\wywork\the-one-1.6.0\reports"
+path = r"F:\One平台\reports\reports"
 #path = r"F:\One平台\reports\921添加相似度不加ACK"
 # 画图的纵坐标与横坐标的名称
-COLNAME = "delivery_prob"
+COLNAME = "latency_avg"
 ROWNAME = "Buffsize"
 # 比较指标 ==>比如 deliver_prob
-norm = dict["delivery_prob"]
+norm = dict["latency_avg"]
 ##########################
 
 
@@ -77,10 +77,11 @@ def getdata():
         algomap[name][float(para)] = target
     return algomap
 
+
 def painting():
     algomap = getdata()
     # 折线的颜色
-    color = ["#F4606C", "#7B68EE", "#40E0D0", "#F4A460", "#B5495B", "#BEEDC7", "#D1BA74","#FB966E", "#FFC408"]
+    color = ["#F4606C", "#7B68EE", "#40E0D0", "#F4A460", "#B5495B", "#BEEDC7", "#D1BA74", "#FB966E", "#FFC408"]
     #折线的形状
     marker = [r"-o", r"-*", r"-^", r"-v", r"-D", r"+",  r"x", r"<", r">"]
     # 图的名称
@@ -90,10 +91,20 @@ def painting():
     ax.set_xlabel(ROWNAME)
     ax.set_ylabel(COLNAME)
     cnt = 0
+    # x的界限
+    x_min = sys.maxsize
+    x_max = -sys.maxsize - 1
+    # y轴的界限
+    y_min = sys.maxsize
+    y_max = -sys.maxsize - 1
     for key in algomap:
         x_list = []
         y_list = []
         for k in sorted(algomap[key]):
+            x_min = min(x_min, k)
+            x_max = max(x_max, k)
+            y_min = min(y_min, float(algomap[key][k]))
+            y_max = max(y_max, float(algomap[key][k]))
             x_list.append(str(k))
             y_list.append(algomap[key][k])
         print(x_list)
@@ -104,7 +115,21 @@ def painting():
         # 参数c指定连线的颜色，linewidth 指定连线宽度，alpha指定连线的透明度
         ax.plot(x_list, y_list, marker[cnt], label=key, color=color[cnt], linestyle='-', linewidth=2, alpha=0.9)
         cnt += 1
-    plt.legend()
+    # diff_x x轴的为上界和下界之间的差值
+    diff_x = x_max - x_min
+    dir_min_x = x_min - diff_x / 8
+    dir_max_x = x_max + diff_x / 8
+    # diff_y y轴的为上界和下界之间的差值
+    diff_y = y_max - y_min
+    dir_min_y = y_min - diff_y / 8
+    dir_max_y = y_max + diff_y / 2
+    # 设置X轴的范围
+    plt.xlim(dir_min_x, dir_max_x)
+    # 设置y轴的范围
+    plt.ylim(dir_min_y, dir_max_y)
+    # plt.lengend() 生成图例,为了帮助我们展示每个数据对应的图像名称
+    # loc 固定图例的位置 prop 设置图例的属性
+    plt.legend(loc="upper right", prop={'size': 7})
     plt.show()
 
 
