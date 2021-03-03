@@ -6,6 +6,14 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import OrderedDict, defaultdict
+from pylab import mpl
+
+# 指定默认字体
+# 如果需要在图中输出中文选择将下面的 mpl.rcParams['font.sans-serif'] = ['Microsoft YaHei'] 注释放开
+mpl.rcParams['font.sans-serif'] = ['Microsoft YaHei']
+# mpl.rcParams['font.sans-serif'] = ['Consolas']
+# 解决保存图像是负号'-'显示为方块的问题
+mpl.rcParams['axes.unicode_minus'] = False
 
 dict = {"delivery_prob": 9, "response_prob": 10, "overhead_ratio": 11, "latency_avg": 12, "latency_med": 13,
         "hopcount_avg": 14, "hopcount_med": 15, "buffertime_avg": 16, "buffertime_med": 17}
@@ -13,11 +21,11 @@ dict = {"delivery_prob": 9, "response_prob": 10, "overhead_ratio": 11, "latency_
 
 ########################
 # 文件目录
-path = r"F:\One平台\reports\reports"
+path = r"E:\论文相关\计算机学报\最终reports\buffsize"
 #path = r"F:\One平台\reports\921添加相似度不加ACK"
 # 画图的纵坐标与横坐标的名称
-COLNAME = "latency_avg"
-ROWNAME = "Buffsize"
+COLNAME = "平均时延(S)"
+ROWNAME = "缓存大小(MB)"
 # 比较指标 ==>比如 deliver_prob
 norm = dict["latency_avg"]
 ##########################
@@ -56,7 +64,7 @@ def getdata():
         f = open(path + "\\" + file)
         # 正则匹配 截取符合下列规则的字符串
         # 截取数字之前的字符串
-        name = re.search(r'([A-Z]*[a-z]*){3}', file).group()
+        name = re.search(r'([A-Z]*[a-z]*-*){100}', file).group()
         # 截取文件名中的浮点数
         para = re.search(r'[0-9]*\.?[0-9]+', file).group()
         read_buf = []
@@ -81,9 +89,9 @@ def getdata():
 def painting():
     algomap = getdata()
     # 折线的颜色
-    color = ["#F4606C", "#7B68EE", "#40E0D0", "#F4A460", "#B5495B", "#BEEDC7", "#D1BA74", "#FB966E", "#FFC408"]
+    color = ["#7B68EE", "#40E0D0", "#F4606C", "#F4A460", "#B5495B", "#BEEDC7", "#D1BA74", "#FB966E", "#FFC408"]
     #折线的形状
-    marker = [r"-o", r"-*", r"-^", r"-v", r"-D", r"+",  r"x", r"<", r">"]
+    marker = [r"-*", r"-^","-o", r"-v", r"-D", r"+",  r"x", r"<", r">"]
     # 图的名称
     plt.figure('DTN experimental data fig')
     ax = plt.gca()
@@ -117,11 +125,11 @@ def painting():
         cnt += 1
     # diff_x x轴的为上界和下界之间的差值
     diff_x = x_max - x_min
-    dir_min_x = x_min - diff_x / 8
-    dir_max_x = x_max + diff_x / 8
+    dir_min_x = x_min - diff_x / 20
+    dir_max_x = x_max + diff_x / 20
     # diff_y y轴的为上界和下界之间的差值
     diff_y = y_max - y_min
-    dir_min_y = y_min - diff_y / 8
+    dir_min_y = y_min - diff_y / 20
     dir_max_y = y_max + diff_y / 2
     # 设置X轴的范围
     plt.xlim(dir_min_x, dir_max_x)
@@ -129,7 +137,8 @@ def painting():
     plt.ylim(dir_min_y, dir_max_y)
     # plt.lengend() 生成图例,为了帮助我们展示每个数据对应的图像名称
     # loc 固定图例的位置 prop 设置图例的属性
-    plt.legend(loc="upper right", prop={'size': 7})
+    plt.legend(loc="upper left", prop={'size': 7})
+    plt.savefig(r"E:\论文相关\计算机学报\实验结果图\缓存_平均时延.png")
     plt.show()
 
 
